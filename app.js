@@ -1,47 +1,21 @@
-require("dotenv").config();
+// require("dotenv").config();
 const express = require("express");
 const { createError, errorHandler } = require("./errors");
 const app = express();
 const port = 3000;
+const orderRouter = require("./routes/order");
+const errorRouter = require("./routes/error");
 
 // middleware to process json
 app.use(express.json());
 
-// main route
-app.get("/", (req, res) => {
-    res.json({ message: "Bem-vindo à minha aplicação Node.js!" });
-});
-
-// errors route to test
-app.get("/errors", (req, res, next) => {
-    // 404 error example
-    if (req.query.type === "404") {
-        return next(createError("Recurso não encontrado", 404));
-    }
-
-    // 400 error example
-    if (req.query.type === "400") {
-        return next(createError("Requisição inválida", 400));
-    }
-
-    // 500 error example
-    if (req.query.type === "500") {
-        return next(createError("Erro interno do servidor", 500));
-    }
-
-    // if none type of error is specified, return a errors list available
-    res.json({
-        message: "Teste de erros disponíveis",
-        erros: [
-            { tipo: "404", descricao: "Recurso não encontrado" },
-            { tipo: "400", descricao: "Requisição inválida" },
-            { tipo: "500", descricao: "Erro interno do servidor" },
-        ],
-    });
-});
+app.use("/errors", errorRouter);
 
 // middleware to handle errors (must be the last middleware)
 app.use(errorHandler);
+
+// route to orders
+app.use("/orders", orderRouter);
 
 // start the server
 app.listen(port, () => {
